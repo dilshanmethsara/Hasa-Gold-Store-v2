@@ -50,11 +50,16 @@ export function SiteHeader() {
               <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary animate-pulse" />
             </button>
             <Link
-              to="/dashboard"
-              className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-foreground text-background text-sm font-medium hover:opacity-90 transition-opacity"
+              to="/login"
+              className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-xl glass-strong text-sm font-medium hover:bg-secondary transition-colors"
             >
-              <User className="w-4 h-4" />
-              Account
+              Sign in
+            </Link>
+            <Link
+              to="/signup"
+              className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-br from-primary to-electric text-primary-foreground text-sm font-medium shadow-[var(--shadow-glow)] hover:scale-[1.01] transition-transform"
+            >
+              Sign up
             </Link>
           </div>
         </div>

@@ -10,6 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SignupRouteImport } from './routes/signup'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as GamesRouteImport } from './routes/games'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CheckoutRouteImport } from './routes/checkout'
@@ -34,6 +36,16 @@ import { Route as AdminAnalyticsRouteImport } from './routes/admin.analytics'
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GamesRoute = GamesRouteImport.update({
@@ -143,6 +155,8 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof CheckoutRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/games': typeof GamesRouteWithChildren
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/orders': typeof AdminOrdersRoute
@@ -164,6 +178,8 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/checkout': typeof CheckoutRoute
   '/games': typeof GamesRouteWithChildren
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/orders': typeof AdminOrdersRoute
@@ -188,6 +204,8 @@ export interface FileRoutesById {
   '/checkout': typeof CheckoutRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/games': typeof GamesRouteWithChildren
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/orders': typeof AdminOrdersRoute
@@ -213,6 +231,8 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/dashboard'
     | '/games'
+    | '/login'
+    | '/signup'
     | '/sitemap.xml'
     | '/admin/analytics'
     | '/admin/orders'
@@ -234,6 +254,8 @@ export interface FileRouteTypes {
     | '/'
     | '/checkout'
     | '/games'
+    | '/login'
+    | '/signup'
     | '/sitemap.xml'
     | '/admin/analytics'
     | '/admin/orders'
@@ -257,6 +279,8 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/dashboard'
     | '/games'
+    | '/login'
+    | '/signup'
     | '/sitemap.xml'
     | '/admin/analytics'
     | '/admin/orders'
@@ -281,6 +305,8 @@ export interface RootRouteChildren {
   CheckoutRoute: typeof CheckoutRoute
   DashboardRoute: typeof DashboardRouteWithChildren
   GamesRoute: typeof GamesRouteWithChildren
+  LoginRoute: typeof LoginRoute
+  SignupRoute: typeof SignupRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
 }
 
@@ -291,6 +317,20 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/games': {
@@ -498,6 +538,8 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutRoute: CheckoutRoute,
   DashboardRoute: DashboardRouteWithChildren,
   GamesRoute: GamesRouteWithChildren,
+  LoginRoute: LoginRoute,
+  SignupRoute: SignupRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
 }
 export const routeTree = rootRouteImport
