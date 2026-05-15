@@ -7,6 +7,7 @@ export type Game = {
   accent: string;
   initials: string;
   emoji: string;
+  image: string;
 };
 
 export const games: Game[] = [
@@ -19,6 +20,7 @@ export const games: Game[] = [
     accent: "from-orange-400 to-rose-500",
     initials: "FF",
     emoji: "🔥",
+    image: "/free fire.jpg",
   },
   {
     id: "pubg-mobile",
@@ -29,6 +31,7 @@ export const games: Game[] = [
     accent: "from-amber-400 to-yellow-600",
     initials: "PM",
     emoji: "🎯",
+    image: "/pubg.png",
   },
   {
     id: "cod-mobile",
@@ -39,6 +42,7 @@ export const games: Game[] = [
     accent: "from-slate-500 to-zinc-800",
     initials: "CD",
     emoji: "🪖",
+    image: "/App_Icon_CODM_Global.webp",
   },
   {
     id: "blood-strike",
@@ -49,6 +53,7 @@ export const games: Game[] = [
     accent: "from-red-500 to-rose-700",
     initials: "BS",
     emoji: "⚔️",
+    image: "/blood-strike.jpg",
   },
   {
     id: "mobile-legends",
@@ -59,6 +64,7 @@ export const games: Game[] = [
     accent: "from-indigo-500 to-blue-700",
     initials: "ML",
     emoji: "🛡️",
+    image: "/mobile legends.jpg",
   },
 ];
 

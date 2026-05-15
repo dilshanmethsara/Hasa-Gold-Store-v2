@@ -7,9 +7,15 @@ import { getGame, packagesByGame, type Pack } from "@/lib/data";
 import { Check, ShieldCheck, Zap, ChevronRight } from "lucide-react";
 
 export const Route = createFileRoute("/games/$gameId")({
-  loader: ({ params }) => {
+  preloadStaleTime: 0,
+  loader: async ({ params }) => {
+    console.log("[Route Loader] Loading game with params:", params);
     const game = getGame(params.gameId);
-    if (!game) throw notFound();
+    console.log("[Route Loader] Retrieved game:", game);
+    if (!game) {
+      console.error("[Route Loader] Game not found for ID:", params.gameId);
+      throw notFound();
+    }
     return { game };
   },
   notFoundComponent: () => (
@@ -33,6 +39,7 @@ function GameTopUpPage() {
 
   const needsServer = game.id === "mobile-legends";
   const total = selected ? selected.price : 0;
+  const canProceed = selected; // Allow proceeding as long as a package is selected
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -52,8 +59,8 @@ function GameTopUpPage() {
             </nav>
 
             <div className="mt-8 flex items-center gap-5">
-              <div className="w-20 h-20 rounded-3xl glass-strong flex items-center justify-center text-4xl shadow-2xl">
-                {game.emoji}
+              <div className="w-20 h-20 rounded-3xl glass-strong flex items-center justify-center text-4xl shadow-2xl overflow-hidden">
+                <img src={game.image} alt={game.name} className="w-full h-full object-cover" />
               </div>
               <div className="text-white">
                 <div className="text-xs uppercase tracking-widest opacity-80">{game.publisher}</div>
@@ -81,7 +88,9 @@ function GameTopUpPage() {
                       value={playerId}
                       onChange={(e) => setPlayerId(e.target.value)}
                       placeholder="e.g. 123456789"
-                      className="mt-1.5 w-full px-4 py-3 rounded-xl bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring transition"
+                      className={`mt-1.5 w-full px-4 py-3 rounded-xl bg-background border transition ${
+                        playerId.length > 0 ? "border-primary/50 focus:ring-2 focus:ring-ring" : "border-border focus:outline-none focus:ring-2 focus:ring-ring"
+                      }`}
                     />
                   </div>
                   {needsServer && (
@@ -91,7 +100,9 @@ function GameTopUpPage() {
                         value={serverId}
                         onChange={(e) => setServerId(e.target.value)}
                         placeholder="e.g. 2104"
-                        className="mt-1.5 w-full px-4 py-3 rounded-xl bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring transition"
+                        className={`mt-1.5 w-full px-4 py-3 rounded-xl bg-background border transition ${
+                          serverId.length > 0 ? "border-primary/50 focus:ring-2 focus:ring-ring" : "border-border focus:outline-none focus:ring-2 focus:ring-ring"
+                        }`}
                       />
                     </div>
                   )}
@@ -121,7 +132,7 @@ function GameTopUpPage() {
                         }`}
                       >
                         {p.popular && (
-                          <div className="absolute -top-2 right-3 text-[10px] font-bold bg-warning text-warning-foreground px-2 py-0.5 rounded-full">
+                          <div className="absolute -top-2 right-3 text-[10px] font-bold bg-warning text-warning-foreground px-2 py-0.5 rounded-full shadow-sm">
                             POPULAR
                           </div>
                         )}
@@ -136,7 +147,7 @@ function GameTopUpPage() {
                           ${p.price.toFixed(2)}
                         </div>
                         {isActive && (
-                          <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-white/30 flex items-center justify-center">
+                          <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-white/30 flex items-center justify-center animate-scale-in">
                             <Check className="w-3 h-3" />
                           </div>
                         )}
@@ -169,7 +180,9 @@ function GameTopUpPage() {
                 <div className="text-xs uppercase tracking-widest text-muted-foreground font-semibold">Order summary</div>
 
                 <div className="mt-5 flex items-center gap-3">
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${game.accent} flex items-center justify-center text-xl`}>{game.emoji}</div>
+                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${game.accent} flex items-center justify-center text-xl overflow-hidden`}>
+                    <img src={game.image} alt={game.name} className="w-full h-full object-cover" />
+                  </div>
                   <div>
                     <div className="text-sm font-semibold">{game.name}</div>
                     <div className="text-xs text-muted-foreground">{game.publisher}</div>
@@ -192,11 +205,17 @@ function GameTopUpPage() {
                 <Link
                   to="/checkout"
                   search={{ game: game.id, pack: selected?.id ?? "", playerId, serverId }}
-                  className="mt-5 group w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl bg-gradient-to-br from-primary to-electric text-primary-foreground font-medium shadow-[var(--shadow-glow)] hover:scale-[1.01] transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="mt-5 group w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl bg-gradient-to-br from-primary to-electric text-primary-foreground font-medium shadow-[var(--shadow-glow)] hover:scale-[1.01] transition-transform"
                 >
                   <Zap className="w-4 h-4" />
                   Buy Now
                 </Link>
+
+                {!canProceed && (
+                  <div className="mt-2 text-xs text-muted-foreground text-center">
+                    Please select a package
+                  </div>
+                )}
 
                 <div className="mt-4 flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
                   <ShieldCheck className="w-3 h-3" /> 256-bit secure · instant delivery

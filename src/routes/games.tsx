@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -22,7 +22,16 @@ const filters = ["All", "Battle Royale", "MOBA", "Shooter"];
 function GamesPage() {
   const [q, setQ] = useState("");
   const [active, setActive] = useState("All");
-
+  
+  const routerState = useRouterState();
+  const isChildRouteActive = routerState.matches.some(m => m.routeId?.includes('$gameId'));
+  
+  // If a child route (game detail) is active, only render the outlet
+  if (isChildRouteActive) {
+    return <Outlet />;
+  }
+  
+  // Otherwise render the games list
   const filtered = games.filter((g) => g.name.toLowerCase().includes(q.toLowerCase()));
 
   return (

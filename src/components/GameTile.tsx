@@ -6,14 +6,14 @@ export function GameTile({ game, index = 0 }: { game: Game; index?: number }) {
     <Link
       to="/games/$gameId"
       params={{ gameId: game.id }}
-      className="group relative block rounded-3xl overflow-hidden glass-strong p-6 hover:-translate-y-1.5 transition-all duration-500 animate-fade-up"
+      className="group relative block rounded-3xl overflow-hidden glass-strong p-6 hover:-translate-y-1.5 transition-all duration-500 animate-fade-up text-left w-full"
       style={{ animationDelay: `${index * 60}ms` }}
     >
       <div className={`absolute -top-16 -right-16 w-48 h-48 rounded-full bg-gradient-to-br ${game.accent} opacity-20 blur-3xl group-hover:opacity-40 group-hover:scale-110 transition-all duration-700`} />
 
       <div className="relative">
-        <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${game.accent} flex items-center justify-center text-2xl shadow-lg mb-5 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500`}>
-          <span>{game.emoji}</span>
+        <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${game.accent} flex items-center justify-center text-2xl shadow-lg mb-5 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500 overflow-hidden`}>
+          <img src={game.image} alt={game.name} className="w-full h-full object-cover" />
         </div>
 
         <div className="text-[11px] uppercase tracking-widest text-muted-foreground font-medium">{game.publisher}</div>

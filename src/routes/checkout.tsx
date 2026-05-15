@@ -4,7 +4,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { FloatingSupport } from "@/components/FloatingSupport";
 import { getGame, packagesByGame } from "@/lib/data";
-import { CreditCard, Wallet, Smartphone, Check, ShieldCheck, Sparkles } from "lucide-react";
+import { Wallet, Smartphone, Check, ShieldCheck, Sparkles, CreditCard } from "lucide-react";
 
 type Search = { game?: string; pack?: string; playerId?: string; serverId?: string };
 
@@ -104,20 +104,6 @@ function CheckoutPage() {
                     ))}
                   </div>
                 </div>
-
-                {method === "card" && (
-                  <div className="glass-strong rounded-3xl p-6 md:p-8 animate-fade-up">
-                    <h2 className="text-lg font-semibold">Card details</h2>
-                    <div className="mt-5 grid gap-3">
-                      <Field label="Card number" placeholder="1234 5678 9012 3456" />
-                      <div className="grid grid-cols-2 gap-3">
-                        <Field label="Expiry" placeholder="MM / YY" />
-                        <Field label="CVC" placeholder="•••" />
-                      </div>
-                      <Field label="Name on card" placeholder="John Doe" />
-                    </div>
-                  </div>
-                )}
               </div>
 
               <aside className="lg:sticky lg:top-24 self-start">
@@ -125,7 +111,9 @@ function CheckoutPage() {
                   <div className="text-xs uppercase tracking-widest text-muted-foreground font-semibold">Order</div>
                   {game ? (
                     <div className="mt-4 flex items-center gap-3">
-                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${game.accent} flex items-center justify-center text-xl`}>{game.emoji}</div>
+                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${game.accent} flex items-center justify-center text-xl overflow-hidden`}>
+                        <img src={game.image} alt={game.name} className="w-full h-full object-cover" />
+                      </div>
                       <div>
                         <div className="text-sm font-semibold">{game.name}</div>
                         <div className="text-xs text-muted-foreground">{pack ? `${pack.amount} ${game.currency}` : "No package selected"}</div>
@@ -164,18 +152,6 @@ function CheckoutPage() {
       <SiteFooter />
       <FloatingSupport />
     </div>
-  );
-}
-
-function Field({ label, placeholder }: { label: string; placeholder: string }) {
-  return (
-    <label className="block">
-      <span className="text-xs text-muted-foreground font-medium">{label}</span>
-      <input
-        placeholder={placeholder}
-        className="mt-1.5 w-full px-4 py-3 rounded-xl bg-background border border-border focus:outline-none focus:ring-2 focus:ring-ring"
-      />
-    </label>
   );
 }
 
