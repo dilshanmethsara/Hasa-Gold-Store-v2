@@ -38,19 +38,40 @@ function GameTopUpPage() {
   const [promo, setPromo] = useState("");
 
   const needsServer = game.id === "mobile-legends";
+  const cleanPlayerId = playerId.trim().replace(/^"|"$/g, "");
+  const cleanServerId = serverId.trim().replace(/^"|"$/g, "");
   const total = selected ? selected.price : 0;
-  const canProceed = selected; // Allow proceeding as long as a package is selected
+  const canProceed = Boolean(
+    selected &&
+    cleanPlayerId &&
+    (!needsServer || cleanServerId)
+  );
+
+  const checkoutData = {
+    game: game.id,
+    pack: selected?.id ?? "",
+    playerId: cleanPlayerId,
+    ...(cleanServerId ? { serverId: cleanServerId } : {}),
+  };
+
+  const goToCheckout = () => {
+    const token = window.crypto?.randomUUID?.() ?? `checkout-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    window.sessionStorage.setItem("checkoutToken", token);
+    window.sessionStorage.setItem(`checkoutData:${token}`, JSON.stringify(checkoutData));
+    window.location.assign("/checkout");
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <main className="flex-1">
         {/* Game header */}
-        <section className={`relative overflow-hidden bg-gradient-to-br ${game.accent}`}>
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/0 to-background" />
-          <div className="absolute inset-0 grid-pattern opacity-20" />
+        <section className="relative overflow-hidden bg-slate-950">
+          <img src={game.image} alt={game.name} className="absolute inset-0 h-full w-full object-cover opacity-90" />
+          <div className="absolute inset-0 bg-slate-950/70" />
+          <div className="absolute inset-0 grid-pattern opacity-15" />
           <div className="relative mx-auto max-w-7xl px-4 pt-12 pb-32">
-            <nav className="flex items-center gap-1.5 text-xs text-white/80">
+            <nav className="flex items-center gap-1.5 text-xs text-slate-200/85">
               <Link to="/" className="hover:text-white">Home</Link>
               <ChevronRight className="w-3 h-3" />
               <Link to="/games" className="hover:text-white">Games</Link>
@@ -58,14 +79,14 @@ function GameTopUpPage() {
               <span className="text-white">{game.name}</span>
             </nav>
 
-            <div className="mt-8 flex items-center gap-5">
-              <div className="w-20 h-20 rounded-3xl glass-strong flex items-center justify-center text-4xl shadow-2xl overflow-hidden">
+            <div className="mt-8 flex flex-col gap-5 lg:flex-row lg:items-center">
+              <div className="w-24 h-24 rounded-3xl border border-white/15 bg-white/10 flex items-center justify-center shadow-2xl overflow-hidden">
                 <img src={game.image} alt={game.name} className="w-full h-full object-cover" />
               </div>
-              <div className="text-white">
+              <div className="text-white max-w-2xl">
                 <div className="text-xs uppercase tracking-widest opacity-80">{game.publisher}</div>
-                <h1 className="text-3xl md:text-5xl font-bold">{game.name}</h1>
-                <p className="mt-1 opacity-85">{game.tagline}</p>
+                <h1 className="mt-3 text-3xl md:text-5xl font-bold">{game.name}</h1>
+                <p className="mt-3 text-base md:text-lg text-slate-200/90">{game.tagline}</p>
               </div>
             </div>
           </div>
@@ -202,18 +223,34 @@ function GameTopUpPage() {
                   <div className="text-2xl font-bold gradient-text">${total.toFixed(2)}</div>
                 </div>
 
-                <Link
-                  to="/checkout"
-                  search={{ game: game.id, pack: selected?.id ?? "", playerId, serverId }}
-                  className="mt-5 group w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl bg-gradient-to-br from-primary to-electric text-primary-foreground font-medium shadow-[var(--shadow-glow)] hover:scale-[1.01] transition-transform"
-                >
-                  <Zap className="w-4 h-4" />
-                  Buy Now
-                </Link>
+                {canProceed ? (
+                  <button
+                    type="button"
+                    onClick={goToCheckout}
+                    className="mt-5 group w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl bg-gradient-to-br from-primary to-electric text-primary-foreground font-medium shadow-[var(--shadow-glow)] hover:scale-[1.01] transition-transform"
+                  >
+                    <Zap className="w-4 h-4" />
+                    Buy Now
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    disabled
+                    className="mt-5 group w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl bg-slate-700 text-slate-300 font-medium shadow-[var(--shadow-soft)] transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Zap className="w-4 h-4" />
+                    Buy Now
+                  </button>
+                )}
 
                 {!canProceed && (
                   <div className="mt-2 text-xs text-muted-foreground text-center">
-                    Please select a package
+                    {cleanPlayerId
+                      ? needsServer && !cleanServerId
+                        ? "Please enter your server ID"
+                        : "Please select a package"
+                      : "Please enter your player ID"
+                    }
                   </div>
                 )}
 

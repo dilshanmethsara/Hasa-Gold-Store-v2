@@ -1,20 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { FloatingSupport } from "@/components/FloatingSupport";
 import { getGame, packagesByGame } from "@/lib/data";
 import { Wallet, Smartphone, Check, ShieldCheck, Sparkles, CreditCard } from "lucide-react";
 
-type Search = { game?: string; pack?: string; playerId?: string; serverId?: string };
+type CheckoutData = { game: string; pack: string; playerId: string; serverId?: string };
 
 export const Route = createFileRoute("/checkout")({
-  validateSearch: (s: Record<string, unknown>): Search => ({
-    game: typeof s.game === "string" ? s.game : undefined,
-    pack: typeof s.pack === "string" ? s.pack : undefined,
-    playerId: typeof s.playerId === "string" ? s.playerId : undefined,
-    serverId: typeof s.serverId === "string" ? s.serverId : undefined,
-  }),
   head: () => ({ meta: [{ title: "Checkout — HASA Gold Store" }] }),
   component: CheckoutPage,
 });
@@ -26,13 +20,72 @@ const methods = [
 ];
 
 function CheckoutPage() {
-  const search = Route.useSearch();
-  const game = search.game ? getGame(search.game) : undefined;
-  const pack = game && search.pack ? packagesByGame[game.id]?.find((p) => p.id === search.pack) : undefined;
+  const [checkoutData, setCheckoutData] = useState<CheckoutData | null | undefined>(undefined);
+  const [checkoutToken, setCheckoutToken] = useState<string | null>(null);
   const [method, setMethod] = useState("card");
   const [done, setDone] = useState(false);
 
+  useEffect(() => {
+    const token = window.sessionStorage.getItem("checkoutToken");
+    if (!token) {
+      setCheckoutData(null);
+      return;
+    }
+
+    const saved = window.sessionStorage.getItem(`checkoutData:${token}`);
+    if (!saved) {
+      setCheckoutData(null);
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(saved) as CheckoutData;
+      const game = getGame(parsed.game);
+      const pack = game ? packagesByGame[game.id]?.find((p) => p.id === parsed.pack) : undefined;
+      const playerId = parsed.playerId?.trim();
+      const serverId = parsed.serverId?.trim();
+      const needsServer = game?.id === "mobile-legends";
+      const isValidCheckout = Boolean(game && pack && playerId && (!needsServer || serverId));
+
+      if (!isValidCheckout) {
+        setCheckoutData(null);
+        return;
+      }
+
+      setCheckoutToken(token);
+      setCheckoutData({ ...parsed, playerId, serverId });
+    } catch {
+      setCheckoutData(null);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (checkoutData === undefined) return;
+    if (checkoutData === null) {
+      window.location.replace("/games");
+    }
+  }, [checkoutData]);
+
+  if (checkoutData === undefined) {
+    return <div className="min-h-screen bg-slate-950" />;
+  }
+
+  const game = getGame(checkoutData.game);
+  const pack = game && packagesByGame[game.id]?.find((p) => p.id === checkoutData.pack);
+  const cleanPlayerId = checkoutData.playerId.trim();
+  const cleanServerId = checkoutData.serverId?.trim();
   const total = pack?.price ?? 0;
+  const isValid = Boolean(game && pack && cleanPlayerId);
+
+  if (!isValid) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-950 text-white">
+        <div className="text-center">
+          <p className="text-lg font-semibold">Redirecting to the games page...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (done) {
     return (
@@ -124,8 +177,8 @@ function CheckoutPage() {
                   )}
 
                   <div className="mt-5 space-y-2 text-sm">
-                    <Row label="Player ID" value={search.playerId || "—"} />
-                    {search.serverId && <Row label="Server ID" value={search.serverId} />}
+                    <Row label="Player ID" value={checkoutData.playerId || "—"} />
+                    {checkoutData.serverId && <Row label="Server ID" value={checkoutData.serverId} />}
                     <Row label="Subtotal" value={`$${total.toFixed(2)}`} />
                     <Row label="Fees" value="$0.00" />
                   </div>
@@ -134,7 +187,13 @@ function CheckoutPage() {
                     <span className="text-2xl font-bold gradient-text">${total.toFixed(2)}</span>
                   </div>
                   <button
-                    onClick={() => setDone(true)}
+                    onClick={() => {
+                      if (checkoutToken) {
+                        window.sessionStorage.removeItem("checkoutToken");
+                        window.sessionStorage.removeItem(`checkoutData:${checkoutToken}`);
+                      }
+                      setDone(true);
+                    }}
                     disabled={!pack}
                     className="mt-5 w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl bg-gradient-to-br from-primary to-electric text-primary-foreground font-medium shadow-[var(--shadow-glow)] hover:scale-[1.01] transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
                   >
